@@ -38,7 +38,7 @@ async function listar_produtos() {
   }
 }
 
-app.get('/dados', async (req, res) => {
+app.get('/produtos', async (req, res) => {
   const dadosArray = await listar_produtos();
   res.json(dadosArray);
 });
