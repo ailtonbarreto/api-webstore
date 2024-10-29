@@ -23,9 +23,9 @@ const pool = new Pool({
 });
 
 // --------------------------------------------------------------------------------------
-// CARREGAR PRODUTOS
+// CARREGAR INTEGRACAO
 
-async function listar_produtos() {
+async function tabela_integracao() {
   try {
     const client = await pool.connect();
     const result = await client.query('SELECT * FROM tembo.tb_integracao');
@@ -38,8 +38,8 @@ async function listar_produtos() {
   }
 }
 
-app.get('/produtos', async (req, res) => {
-  const dadosArray = await listar_produtos();
+app.get('/integracao', async (req, res) => {
+  const dadosArray = await tabela_integracao();
   res.json(dadosArray);
 });
 
@@ -49,7 +49,7 @@ app.get('/produtos', async (req, res) => {
 async function listar_vendas() {
   try {
     const client = await pool.connect();
-    const result = await client.query(`SELECT * FROM tembo.tb_vendas WHERE "EMISSAO" >= '2024-01-09'`);
+    const result = await client.query(`SELECT * FROM tembo.tb_venda WHERE "EMISSAO" >= '2024-01-09'`);
     const dadosArray = result.rows;
     client.release();
     return dadosArray;
@@ -63,6 +63,30 @@ app.get('/vendas', async (req, res) => {
   const dadosArray = await listar_vendas();
   res.json(dadosArray);
 });
+
+// --------------------------------------------------------------------------------------
+// CARREGAR CADASTRO DE PRODUTOS
+
+async function tabela_produtos() {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM tembo.tb_produto');
+    const dadosArray = result.rows;
+    client.release();
+    return dadosArray;
+  } catch (error) {
+    console.error('Erro ao conectar ou consultar o PostgreSQL:', error);
+    return [];
+  }
+}
+
+app.get('/produtos', async (req, res) => {
+  const dadosArray = await tabela_produtos();
+  res.json(dadosArray);
+});
+
+
+
 
 // ----------------------------------------------------------------------------------------
 app.listen(3000, () => {
