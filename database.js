@@ -49,7 +49,7 @@ app.get('/integracao', async (req, res) => {
 async function listar_vendas() {
   try {
     const client = await pool.connect();
-    const result = await client.query(`SELECT * FROM tembo.tb_venda WHERE "EMISSAO" >= '2024-01-09'`);
+    const result = await client.query(`SELECT * FROM tembo.tb_venda`);
     const dadosArray = result.rows;
     client.release();
     return dadosArray;
