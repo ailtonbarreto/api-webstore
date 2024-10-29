@@ -85,7 +85,26 @@ app.get('/produtos', async (req, res) => {
   res.json(dadosArray);
 });
 
+// --------------------------------------------------------------------------------------
+// CARREGAR TABELA DE CLIENTES
 
+async function tabela_clientes() {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT * FROM tembo.tb_cliente');
+    const dadosArray = result.rows;
+    client.release();
+    return dadosArray;
+  } catch (error) {
+    console.error('Erro ao conectar ou consultar o PostgreSQL:', error);
+    return [];
+  }
+}
+
+app.get('/clientes', async (req, res) => {
+  const dadosArray = await tabela_clientes();
+  res.json(dadosArray);
+});
 
 
 // ----------------------------------------------------------------------------------------
