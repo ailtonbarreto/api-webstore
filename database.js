@@ -107,7 +107,30 @@ app.get('/clientes', async (req, res) => {
 });
 
 
+// --------------------------------------------------------------------------------------
+// INSERIR PEDIDO
+
+app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html'}));
+
+app.use(express.json());
+
+app.post('/inserir', async (req, res) => {
+  const { PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT } = req.body;
+  try {
+    // Inserção no banco de dados
+    await pool.query(
+      'INSERT INTO tembo.tb_venda (PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', 
+      [PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT]
+    );
+    res.status(201).json({ message: 'Inserção bem-sucedida' });
+  } catch (error) {
+    console.error('Erro ao inserir dados:', error);
+    res.status(500).json({ message: 'Erro ao inserir dados', error: error.message });
+  }
+});
+
 // ----------------------------------------------------------------------------------------
+// RODANDO NO SERVIDOR - node database.js
 app.listen(3000, () => {
   console.log('Servidor rodando em http://localhost:3000');
 });
