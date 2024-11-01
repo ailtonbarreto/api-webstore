@@ -119,8 +119,14 @@ app.post('/inserir', async (req, res) => {
   try {
     // Inserção no banco de dados
     await pool.query(
-      'INSERT INTO tembo.tb_venda (PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', 
-      [PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT]
+      // 'INSERT INTO tembo.tb_venda (PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', 
+      // [PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT]
+
+
+      `INSERT INTO tembo.tb_venda ("${PEDIDO}", "${EMISSAO}", "${ENTREGA}", "${SKU_CLIENTE}", "${SKU}", "${PARENT}", "${QTD}", "${VR_UNIT}}")
+      VALUES ('PEDTESTE1', '2024-10-31', '2024-10-31', 7, '1-UN', 1, 18, 113.4);`
+
+
     );
     res.status(201).json({ message: 'Inserção bem-sucedida' });
   } catch (error) {
