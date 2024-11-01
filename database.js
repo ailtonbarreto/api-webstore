@@ -124,7 +124,7 @@ app.post('/inserir', async (req, res) => {
 
 
       `INSERT INTO tembo.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT")
-      VALUES (${PEDIDO}", "${EMISSAO}", "${ENTREGA}", "${SKU_CLIENTE}", "${SKU}", "${PARENT}", "${QTD}", "${VR_UNIT}});`
+      VALUES (${PEDIDO}, ${EMISSAO}, ${ENTREGA}, ${SKU_CLIENTE}, ${SKU}, ${PARENT}, ${QTD}, ${VR_UNIT}});`
 
 
     );
