@@ -123,8 +123,8 @@ app.post('/inserir', async (req, res) => {
       // [PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT]
 
 
-      `INSERT INTO tembo.tb_venda ("${PEDIDO}", "${EMISSAO}", "${ENTREGA}", "${SKU_CLIENTE}", "${SKU}", "${PARENT}", "${QTD}", "${VR_UNIT}}")
-      VALUES ('PEDTESTE1', '2024-10-31', '2024-10-31', 7, '1-UN', 1, 18, 113.4);`
+      `INSERT INTO tembo.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT")
+      VALUES (${PEDIDO}", "${EMISSAO}", "${ENTREGA}", "${SKU_CLIENTE}", "${SKU}", "${PARENT}", "${QTD}", "${VR_UNIT}});`
 
 
     );
