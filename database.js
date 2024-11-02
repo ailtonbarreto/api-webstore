@@ -6,8 +6,10 @@ const app = express();
 
 
 // --------------------------------------------------------------------------------------
-// AUX
+// --------------------------------------------------------------------------------------
+// CONFIGURAÇÕES
 app.use(cors());
+app.use(express.json()); // Para interpretar JSON no body das requisições
 
 // --------------------------------------------------------------------------------------
 // CRENDENCIAL
@@ -112,28 +114,39 @@ app.get('/clientes', async (req, res) => {
 
 app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html'}));
 
-app.use(express.json());
+// app.use(cors({ origin: 'http://127.0.0.1:5501/'}));
 
-app.post('/inserir', async (req, res) => {
+// app.post('/inserir', async (req, res) => {
+//   const { PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT } = req.body;
+//   try {
+//     // Inserção no banco de dados
+//     await pool.query(
+
+//       `INSERT INTO tembo.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT")
+//       VALUES (${PEDIDO}, ${EMISSAO}, ${ENTREGA}, ${SKU_CLIENTE}, ${SKU}, ${PARENT}, ${QTD}, ${VR_UNIT}});`
+
+
+//     );
+//     res.status(201).json({ message: 'Inserção bem-sucedida' });
+//   } catch (error) {
+//     console.error('Erro ao inserir dados:', error);
+//     res.status(500).json({ message: 'Erro ao inserir dados', error: error.message });
+//   }
+
+
+// });
+// ----------------------------------------------------------------------------------------------------------
+
+// TESTAR PEDIDO DO SITE
+app.post('/inserir', (req, res) => {
   const { PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT } = req.body;
-  try {
-    // Inserção no banco de dados
-    await pool.query(
-      // 'INSERT INTO tembo.tb_venda (PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', 
-      // [PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT]
+
+  console.log('Dados recebidos:', req.body);
 
 
-      `INSERT INTO tembo.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT")
-      VALUES (${PEDIDO}, ${EMISSAO}, ${ENTREGA}, ${SKU_CLIENTE}, ${SKU}, ${PARENT}, ${QTD}, ${VR_UNIT}});`
-
-
-    );
-    res.status(201).json({ message: 'Inserção bem-sucedida' });
-  } catch (error) {
-    console.error('Erro ao inserir dados:', error);
-    res.status(500).json({ message: 'Erro ao inserir dados', error: error.message });
-  }
+  res.status(200).json({ message: 'Dados recebidos com sucesso' });
 });
+
 
 // ----------------------------------------------------------------------------------------
 // RODANDO NO SERVIDOR - node database.js
