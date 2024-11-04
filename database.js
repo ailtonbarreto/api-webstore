@@ -141,10 +141,9 @@ app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html'}))
 app.post('/inserir', (req, res) => {
   const { PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT } = req.body;
 
-  console.log('Dados recebidos:', req.body);
+  console.log('Pedido Recebido:', req.body);
 
 
-  res.status(200).json({ message: 'Dados recebidos com sucesso' });
 });
 
 
