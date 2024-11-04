@@ -112,9 +112,7 @@ app.get('/clientes', async (req, res) => {
 // --------------------------------------------------------------------------------------
 // INSERIR PEDIDO
 
-app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html'}));
-
-// app.use(cors({ origin: 'http://127.0.0.1:5501/'}));
+// app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html'}));
 
 // app.post('/inserir', async (req, res) => {
 //   const { PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT } = req.body;
@@ -138,6 +136,9 @@ app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html'}))
 // ----------------------------------------------------------------------------------------------------------
 
 // TESTAR PEDIDO DO SITE
+
+app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html'}));
+
 app.post('/inserir', (req, res) => {
   const { PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT } = req.body;
 
