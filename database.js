@@ -111,41 +111,69 @@ app.get('/clientes', async (req, res) => {
 
 // --------------------------------------------------------------------------------------
 // INSERIR PEDIDO
-
-// app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html'}));
+app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html' }));
 
 // app.post('/inserir', async (req, res) => {
 //   const { PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT } = req.body;
+
 //   try {
-//     // Inserção no banco de dados
 //     await pool.query(
-
 //       `INSERT INTO tembo.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT")
-//       VALUES (${PEDIDO}, ${EMISSAO}, ${ENTREGA}, ${SKU_CLIENTE}, ${SKU}, ${PARENT}, ${QTD}, ${VR_UNIT}});`
+//       VALUES ('PEDTESTE', '2024-05-11', '2024-05-11', '10', '1-UN', '1', '1', '44.25');`)
 
-
-//     );
 //     res.status(201).json({ message: 'Inserção bem-sucedida' });
 //   } catch (error) {
 //     console.error('Erro ao inserir dados:', error);
 //     res.status(500).json({ message: 'Erro ao inserir dados', error: error.message });
 //   }
-
-
 // });
-// ----------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 
-// TESTAR PEDIDO DO SITE
+app.post('/inserir', async (req, res) => {
+  console.log('Corpo da requisição:', req.body); // Log do corpo da requisição
 
-app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html'}));
+  // Verifique se há dados a serem inseridos
+  if (!Array.isArray(req.body) || req.body.length === 0) {
+    return res.status(400).json({ message: 'Nenhum dado para inserir' });
+  }
 
-app.post('/inserir', (req, res) => {
-  const { PEDIDO, EMISSAO, ENTREGA, SKU_CLIENTE, SKU, PARENT, QTD, VR_UNIT } = req.body;
+  const query = `
+    INSERT INTO tembo.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT")
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    RETURNING *;
+  `;
 
-  console.log('Pedido Recebido:', req.body);
+  const client = await pool.connect(); // Conecta ao banco de dados
 
+  try {
+    await client.query('BEGIN'); // Inicia uma transação
 
+    // Array para armazenar os resultados de inserção
+    const resultados = [];
+
+    // Itera sobre cada item do array
+    for (const dados of req.body) {
+      const { pedido, emissao, entrega, sku_cliente, parent, produto, quantidade, valor_unit } = dados;
+
+      // Execute a consulta para cada item
+      const valores = [pedido, emissao, entrega, sku_cliente, produto, parent, quantidade, valor_unit];
+      const resultado = await client.query(query, valores);
+
+      // Adiciona o resultado à lista
+      resultados.push(resultado.rows[0]); // Adiciona o item inserido
+    }
+
+    await client.query('COMMIT'); // Comita a transação
+    res.status(201).json({ message: 'Inserções bem-sucedidas', data: resultados });
+  } catch (error) {
+    await client.query('ROLLBACK'); // Reverte a transação em caso de erro
+    console.error('Erro ao inserir dados:', error);
+    res.status(500).json({ message: 'Erro ao inserir dados', error: error.message });
+  } finally {
+    client.release(); // Libera o cliente de volta ao pool
+  }
 });
+
 
 
 // ----------------------------------------------------------------------------------------
