@@ -137,7 +137,7 @@ app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html' })
 
 
 app.post('/inserir', async (req, res) => {
-  console.log('Corpo da requisição:', req.body); // Log do corpo da requisição
+  console.log('Corpo da requisição:', req.body);
 
   // Verifique se há dados a serem inseridos
   if (!Array.isArray(req.body) || req.body.length === 0) {
@@ -150,34 +150,34 @@ app.post('/inserir', async (req, res) => {
     RETURNING *;
   `;
 
-  const client = await pool.connect(); // Conecta ao banco de dados
+  const client = await pool.connect();
 
   try {
-    await client.query('BEGIN'); // Inicia uma transação
+    await client.query('BEGIN');
 
-    // Array para armazenar os resultados de inserção
+
     const resultados = [];
 
     // Itera sobre cada item do array
     for (const dados of req.body) {
       const {pedido, emissao, entrega, sku_cliente, parent, produto, quantidade, valor_unit,sequencia,situacao } = dados;
 
-      // Execute a consulta para cada item
+
       const valores = [pedido, emissao, entrega, sku_cliente, produto, parent, quantidade, valor_unit,sequencia,situacao];
       const resultado = await client.query(query, valores);
 
-      // Adiciona o resultado à lista
-      resultados.push(resultado.rows[0]); // Adiciona o item inserido
+
+      resultados.push(resultado.rows[0]);
     }
 
-    await client.query('COMMIT'); // Comita a transação
+    await client.query('COMMIT');
     res.status(201).json({ message: 'Inserções bem-sucedidas', data: resultados });
   } catch (error) {
-    await client.query('ROLLBACK'); // Reverte a transação em caso de erro
+    await client.query('ROLLBACK');
     console.error('Erro ao inserir dados:', error);
     res.status(500).json({ message: 'Erro ao inserir dados', error: error.message });
   } finally {
-    client.release(); // Libera o cliente de volta ao pool
+    client.release();
   }
 });
 
