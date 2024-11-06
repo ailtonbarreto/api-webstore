@@ -51,7 +51,8 @@ app.get('/integracao', async (req, res) => {
 async function listar_vendas() {
   try {
     const client = await pool.connect();
-    const result = await client.query(`select * from tembo.tb_venda where "EMISSAO" >= '2024-06-20'`);
+    const result = await client.query('select * from tembo.tb_venda');
+
     const dadosArray = result.rows;
     client.release();
     return dadosArray;
@@ -64,6 +65,27 @@ async function listar_vendas() {
 app.get('/vendas', async (req, res) => {
   const dadosArray = await listar_vendas();
   res.json(dadosArray);
+
+});
+// --------------------------------------------------------------------------------------
+// ULTIMO PEDIDO
+async function getMaxSequencia() {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT MAX("SEQUENCIA") AS maior_valor FROM tembo.tb_venda');
+    const max_value = result.rows[0].maior_valor;  // O maior valor de SEQUENCIA
+    client.release();
+    return max_value;
+  } catch (error) {
+    console.error('Erro ao pegar o maior valor de SEQUENCIA:', error);
+    return null;
+  }
+}
+
+app.get('/lastorder', async (req, res) => {
+  const lastorder = await getMaxSequencia();
+  console.log(lastorder);
+  res.json({ maior_valor: lastorder + 1 });
 });
 
 // --------------------------------------------------------------------------------------
@@ -138,7 +160,7 @@ app.post('/inserir', async (req, res) => {
 
     // Itera sobre cada item do array
     for (const dados of req.body) {
-      const { pedido, emissao, entrega, sku_cliente, parent, produto, quantidade, valor_unit,sequencia,situacao } = dados;
+      const {pedido, emissao, entrega, sku_cliente, parent, produto, quantidade, valor_unit,sequencia,situacao } = dados;
 
       // Execute a consulta para cada item
       const valores = [pedido, emissao, entrega, sku_cliente, produto, parent, quantidade, valor_unit,sequencia,situacao];
