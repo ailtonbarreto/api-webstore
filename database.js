@@ -145,8 +145,8 @@ app.post('/inserir', async (req, res) => {
   }
 
   const query = `
-    INSERT INTO tembo.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT","SEQUENCIA","STATUS")
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8,$9,$10)
+    INSERT INTO tembo.tb_venda ("EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT", "STATUS")
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     RETURNING *;
   `;
 
@@ -154,18 +154,14 @@ app.post('/inserir', async (req, res) => {
 
   try {
     await client.query('BEGIN');
-
-
     const resultados = [];
 
     // Itera sobre cada item do array
     for (const dados of req.body) {
-      const {pedido, emissao, entrega, sku_cliente, parent, produto, quantidade, valor_unit,sequencia,situacao } = dados;
+      const { emissao, entrega, sku_cliente, produto, parent, quantidade, valor_unit, situacao } = dados;
 
-
-      const valores = [pedido, emissao, entrega, sku_cliente, produto, parent, quantidade, valor_unit,sequencia,situacao];
+      const valores = [emissao, entrega, sku_cliente, produto, parent, quantidade, valor_unit, situacao];
       const resultado = await client.query(query, valores);
-
 
       resultados.push(resultado.rows[0]);
     }
@@ -180,6 +176,7 @@ app.post('/inserir', async (req, res) => {
     client.release();
   }
 });
+
 
 
 
