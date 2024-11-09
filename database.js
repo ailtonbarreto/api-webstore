@@ -4,12 +4,10 @@ import pkg from 'pg';
 const { Pool } = pkg;
 const app = express();
 
-
-// --------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------
 // CONFIGURAÇÕES
 app.use(cors());
-app.use(express.json()); // Para interpretar JSON no body das requisições
+app.use(express.json());
 
 // --------------------------------------------------------------------------------------
 // CRENDENCIAL
@@ -23,6 +21,16 @@ const pool = new Pool({
     rejectUnauthorized: false,
   },
 });
+
+
+// --------------------------------------------------------------------------------------
+// PERMISSOES DO SITE
+const corsOptions = {
+  origin: ['http://127.0.0.1:5501', 'https://ailtonbarneto.github.io'],
+  methods: 'GET,POST',
+};
+
+app.use(cors(corsOptions));
 
 // --------------------------------------------------------------------------------------
 // CARREGAR INTEGRACAO
@@ -113,53 +121,7 @@ app.get('/clientes', async (req, res) => {
 
 // --------------------------------------------------------------------------------------
 // INSERIR PEDIDO
-app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html' }));
-
-
-// app.post('/inserir', async (req, res) => {
-//   console.log('Corpo da requisição:', req.body);
-
-//   // Verifique se há dados a serem inseridos
-//   if (!Array.isArray(req.body) || req.body.length === 0) {
-//     return res.status(400).json({ message: 'Nenhum dado para inserir' });
-//   }
-
-//   const query = `
-//     INSERT INTO tembo.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT","SEQUENCIA","STATUS")
-//     VALUES ($1, $2, $3, $4, $5, $6, $7, $8,$9,$10)
-//     RETURNING *;
-//   `;
-
-//   const client = await pool.connect();
-
-//   try {
-//     await client.query('BEGIN');
-
-
-//     const resultados = [];
-
-//     // Itera sobre cada item do array
-//     for (const dados of req.body) {
-//       const {pedido, emissao, entrega, sku_cliente, parent, produto, quantidade, valor_unit,sequencia,situacao } = dados;
-
-
-//       const valores = [pedido, emissao, entrega, sku_cliente, produto, parent, quantidade, valor_unit,sequencia,situacao];
-//       const resultado = await client.query(query, valores);
-
-
-//       resultados.push(resultado.rows[0]);
-//     }
-
-//     await client.query('COMMIT');
-//     res.status(201).json({ message: 'Inserções bem-sucedidas', data: resultados });
-//   } catch (error) {
-//     await client.query('ROLLBACK');
-//     console.error('Erro ao inserir dados:', error);
-//     res.status(500).json({ message: 'Erro ao inserir dados', error: error.message });
-//   } finally {
-//     client.release();
-//   }
-// });
+// app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html' }));
 
 async function getMaxSequencia() {
   try {
@@ -196,7 +158,7 @@ app.post('/inserir', async (req, res) => {
       throw new Error('Não foi possível obter o valor de SEQUENCIA');
     }
 
-    const novaSequencia = maxSequencia + 1; // Define o mesmo número de sequência para todos os itens
+    const novaSequencia = maxSequencia + 1;
     const resultados = [];
 
     for (const dados of req.body) {
