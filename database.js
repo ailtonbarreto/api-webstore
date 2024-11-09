@@ -26,7 +26,7 @@ const pool = new Pool({
 // --------------------------------------------------------------------------------------
 // PERMISSOES DO SITE
 const corsOptions = {
-  origin: ['http://127.0.0.1:5501', 'https://ailtonbarneto.github.io'],
+  origin: ['http://127.0.0.1:5501', 'https://ailtonbarreto.github.io/webstore/pedido.html'],
   methods: 'GET,POST',
 };
 
