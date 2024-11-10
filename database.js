@@ -120,8 +120,31 @@ app.get('/clientes', async (req, res) => {
 
 
 // --------------------------------------------------------------------------------------
+// INSERIR NEWSLETTER
+
+app.post('/newsletter', async (req, res) => {
+  const { nome, fone, email } = req.body;
+
+  const insertQuery = `
+    INSERT INTO tembo.tb_newsletter ("NOME", "FONE", "EMAIL")
+    VALUES ($1, $2, $3)
+    RETURNING *;
+  `;
+
+  try {
+    // Executa a query de inserção
+    const result = await pool.query(insertQuery, [nome, fone, email]);
+    // Retorna o registro inserido
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Erro ao inserir dados na tabela newsletter:", error);
+    res.status(500).json({ error: "Erro ao inserir dados na tabela newsletter." });
+  }
+});
+
+// --------------------------------------------------------------------------------------
 // INSERIR PEDIDO
-// app.use(cors({ origin: 'https://ailtonbarreto.github.io/webstore/pedido.html' }));
+
 
 async function getMaxSequencia() {
   try {
