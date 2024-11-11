@@ -77,6 +77,27 @@ app.get('/vendas', async (req, res) => {
 });
 
 // --------------------------------------------------------------------------------------
+// CONSULTA POWER BI
+async function select_powerbi() {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT v."PEDIDO", v."SKU_CLIENTE", v."EMISSAO", v."PARENT", p."DESCRICAO_PARENT",p."CATEGORIA",v."QTD",v."VR_UNIT",v."STATUS",c."CLIENTE" FROM tembo.tb_venda AS v LEFT JOIN (SELECT DISTINCT ON ("PARENT") "PARENT", "DESCRICAO_PARENT", "CATEGORIA" FROM tembo.tb_produto ORDER BY "PARENT") AS p ON v."PARENT" = p."PARENT" LEFT JOIN tembo.tb_cliente AS c ON v."SKU_CLIENTE" = c."SKU_CLIENTE";');
+    const dadosArray = result.rows;
+    client.release();
+    return dadosArray;
+  } catch (error) {
+    console.error('Erro ao conectar ou consultar o PostgreSQL:', error);
+    return [];
+  }
+}
+
+app.get('/powerbi', async (req, res) => {
+  const dadosArray = await select_powerbi();
+  res.json(dadosArray);
+});
+
+
+// --------------------------------------------------------------------------------------
 // CARREGAR CADASTRO DE PRODUTOS
 
 async function tabela_produtos() {
@@ -149,15 +170,16 @@ app.post('/newsletter', async (req, res) => {
 async function getMaxSequencia() {
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT MAX("SEQUENCIA") AS maior_valor FROM tembo.tb_venda');
-    const max_value = result.rows[0].maior_valor || 50000; // Se não houver valor, começa em 50000
+    const result = await client.query('SELECT MAX("SKU_CLIENTE") AS "maior_valor" FROM tembo.tb_cliente;');
+    const max_value = result.rows[0].maior_valor;
     client.release();
     return max_value;
   } catch (error) {
-    console.error('Erro ao pegar o maior valor de SEQUENCIA:', error);
+    console.error('Erro ao pegar o maior valor de SKU_CLIENTE:', error);
     return null;
   }
 }
+
 
 app.post('/inserir', async (req, res) => {
   console.log('Corpo da requisição:', req.body);
@@ -205,6 +227,72 @@ app.post('/inserir', async (req, res) => {
     client.release();
   }
 });
+
+
+// --------------------------------------------------------------------------------------
+// INSERIR CLIENTE
+
+
+async function getMaxSequencia() {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('select MAX("SKU_CLIENTE") AS MAIOR VALORfrom tembo.tb_cliente;');
+    const max_value = result.rows[0].maior_valor
+    client.release();
+    return max_value;
+  } catch (error) {
+    console.error('Erro ao pegar o maior valor de SEQUENCIA:', error);
+    return null;
+  }
+}
+
+app.post('/inserircliente', async (req, res) => {
+  console.log('Corpo da requisição:', req.body);
+
+  if (!Array.isArray(req.body) || req.body.length === 0) {
+    return res.status(400).json({ message: 'Nenhum dado para inserir' });
+  }
+
+  const query = `
+    INSERT INTO tembo.cliente ("SKU_CLIENTE", "CLIENTE", "CIDADE", "UF", "USER", "PASSWORD", "STATUS")
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    RETURNING *;
+  `;
+
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+    const maxSequencia = await getMaxSequencia();
+    if (maxSequencia === null) {
+      throw new Error('Não foi possível obter o valor de SEQUENCIA');
+    }
+
+    const novaSequencia = maxSequencia + 1;
+    const resultados = [];
+
+    for (const dados of req.body) {
+      const { sku_cliente, cliente, cidade, uf, user, password, status} = dados;
+
+      const valores = [
+        novaSequencia, cliente, cidade, uf, user, password, status];
+
+      const resultado = await client.query(query, valores);
+      resultados.push(resultado.rows[0]);
+    }
+
+    await client.query('COMMIT');
+    res.status(201).json({ message: 'Inserções bem-sucedidas', data: resultados });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Erro ao inserir dados:', error);
+    res.status(500).json({ message: 'Erro ao inserir dados', error: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+
 
 // ----------------------------------------------------------------------------------------
 // RODANDO NO SERVIDOR - node database.js
