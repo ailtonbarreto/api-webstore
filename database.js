@@ -26,7 +26,7 @@ const pool = new Pool({
 // --------------------------------------------------------------------------------------
 // PERMISSOES DO SITE
 const corsOptions = {
-  origin: ['http://127.0.0.1:5501', 'https://ailtonbarreto.github.io/webstore/pedido.html','https://ailtonbarreto.github.io/webstore/cadastro.html'],
+  origin: ['http://127.0.0.1:5501', 'https://ailtonbarreto.github.io/webstore/pedido.html'],
   methods: 'GET,POST',
 };
 
@@ -227,71 +227,6 @@ app.post('/inserir', async (req, res) => {
     client.release();
   }
 });
-
-
-// --------------------------------------------------------------------------------------
-// INSERIR CLIENTE
-
-async function getMaxCliente() {
-  try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT MAX("SKU_CLIENTE") AS maior_valor FROM tembo.tb_cliente;');
-    const max_value = result.rows[0].maior_valor;
-    client.release();
-    return max_value;
-  } catch (error) {
-    console.error('Erro ao pegar o maior valor de SKU_CLIENTE:', error);
-    return null;
-  }
-}
-
-app.post('/inserircliente', async (req, res) => {
-  console.log('Corpo da requisição:', req.body);
-
-  if (!Array.isArray(req.body) || req.body.length === 0) {
-    return res.status(400).json({ message: 'Nenhum dado para inserir' });
-  }
-
-  const query = `
-    INSERT INTO tembo.tb_cliente ("SKU_CLIENTE", "CLIENTE", "CIDADE", "UF", "USER", "PASSWORD", "STATUS")
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
-    RETURNING *;
-  `;
-
-  const client = await pool.connect();
-
-  try {
-    await client.query('BEGIN');
-    const maxSequencia = await getMaxCliente();
-    if (maxSequencia === null) {
-      throw new Error('Não foi possível obter o valor de SKU_CLIENTE');
-    }
-
-    const novaSequencia = maxSequencia + 1;
-    const resultados = [];
-
-    for (const dados of req.body) {
-      const { cliente, cidade, uf, user, password, status } = dados;
-
-      const valores = [
-        novaSequencia, cliente, cidade, uf, user, password, status
-      ];
-
-      const resultado = await client.query(query, valores);
-      resultados.push(resultado.rows[0]);
-    }
-
-    await client.query('COMMIT');
-    res.status(201).json({ message: 'Inserções bem-sucedidas', data: resultados });
-  } catch (error) {
-    await client.query('ROLLBACK');
-    console.error('Erro ao inserir dados:', error);
-    res.status(500).json({ message: 'Erro ao inserir dados', error: error.message });
-  } finally {
-    client.release();
-  }
-});
-
 
 
 // ----------------------------------------------------------------------------------------
