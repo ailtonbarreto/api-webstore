@@ -233,7 +233,7 @@ app.post('/inserir', async (req, res) => {
 // INSERIR CLIENTE
 
 
-async function getMaxSequencia() {
+async function getmaxcliente() {
   try {
     const client = await pool.connect();
     const result = await client.query('select MAX("SKU_CLIENTE") AS MAIOR VALORfrom tembo.tb_cliente;');
@@ -263,7 +263,7 @@ app.post('/inserircliente', async (req, res) => {
 
   try {
     await client.query('BEGIN');
-    const maxSequencia = await getMaxSequencia();
+    const maxSequencia = await getmaxcliente();
     if (maxSequencia === null) {
       throw new Error('Não foi possível obter o valor de SEQUENCIA');
     }
