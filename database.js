@@ -232,16 +232,15 @@ app.post('/inserir', async (req, res) => {
 // --------------------------------------------------------------------------------------
 // INSERIR CLIENTE
 
-
-async function getmaxcliente() {
+async function getMaxCliente() {
   try {
     const client = await pool.connect();
-    const result = await client.query('select MAX("SKU_CLIENTE") AS MAIOR VALORfrom tembo.tb_cliente;');
-    const max_value = result.rows[0].maior_valor
+    const result = await client.query('SELECT MAX("SKU_CLIENTE") AS maior_valor FROM tembo.tb_cliente;');
+    const max_value = result.rows[0].maior_valor;
     client.release();
     return max_value;
   } catch (error) {
-    console.error('Erro ao pegar o maior valor de SEQUENCIA:', error);
+    console.error('Erro ao pegar o maior valor de SKU_CLIENTE:', error);
     return null;
   }
 }
@@ -254,7 +253,7 @@ app.post('/inserircliente', async (req, res) => {
   }
 
   const query = `
-    INSERT INTO tembo.cliente ("SKU_CLIENTE", "CLIENTE", "CIDADE", "UF", "USER", "PASSWORD", "STATUS")
+    INSERT INTO tembo.tb_cliente ("SKU_CLIENTE", "CLIENTE", "CIDADE", "UF", "USER", "PASSWORD", "STATUS")
     VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *;
   `;
@@ -263,19 +262,20 @@ app.post('/inserircliente', async (req, res) => {
 
   try {
     await client.query('BEGIN');
-    const maxSequencia = await getmaxcliente();
+    const maxSequencia = await getMaxCliente();
     if (maxSequencia === null) {
-      throw new Error('Não foi possível obter o valor de SEQUENCIA');
+      throw new Error('Não foi possível obter o valor de SKU_CLIENTE');
     }
 
     const novaSequencia = maxSequencia + 1;
     const resultados = [];
 
     for (const dados of req.body) {
-      const { sku_cliente, cliente, cidade, uf, user, password, status} = dados;
+      const { cliente, cidade, uf, user, password, status } = dados;
 
       const valores = [
-        novaSequencia, cliente, cidade, uf, user, password, status];
+        novaSequencia, cliente, cidade, uf, user, password, status
+      ];
 
       const resultado = await client.query(query, valores);
       resultados.push(resultado.rows[0]);
