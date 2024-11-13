@@ -166,12 +166,11 @@ app.post('/newsletter', async (req, res) => {
 // --------------------------------------------------------------------------------------
 // INSERIR PEDIDO
 
-
 async function getMaxSequencia() {
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT MAX("SEQUENCIA") AS "maior_valor" FROM tembo.tb_venda;');
-    const max_value = result.rows[0].maior_valor;
+    const result = await client.query('SELECT MAX("SEQUENCIA") AS maior_valor FROM tembo.tb_venda');
+    const max_value = result.rows[0].maior_valor || 50000; // Se não houver valor, começa em 50000
     client.release();
     return max_value;
   } catch (error) {
@@ -179,7 +178,6 @@ async function getMaxSequencia() {
     return null;
   }
 }
-
 
 app.post('/inserir', async (req, res) => {
   console.log('Corpo da requisição:', req.body);
