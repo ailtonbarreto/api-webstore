@@ -26,7 +26,7 @@ const pool = new Pool({
 // --------------------------------------------------------------------------------------
 // PERMISSOES DO SITE
 const corsOptions = {
-  origin: ['http://127.0.0.1:5501', 'https://ailtonbarreto.github.io/webstore','https://ailtonbarreto.github.io/webstore/pedido.html'],
+  origin: ['http://127.0.0.1:5501','https://ailtonbarreto.github.io/webstore/pedido.html'],
   methods: 'GET,POST',
 };
 
@@ -170,12 +170,12 @@ app.post('/newsletter', async (req, res) => {
 async function getMaxSequencia() {
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT MAX("SKU_CLIENTE") AS "maior_valor" FROM tembo.tb_cliente;');
+    const result = await client.query('SELECT MAX("SEQUENCIA") AS "maior_valor" FROM tembo.tb_venda;');
     const max_value = result.rows[0].maior_valor;
     client.release();
     return max_value;
   } catch (error) {
-    console.error('Erro ao pegar o maior valor de SKU_CLIENTE:', error);
+    console.error('Erro ao pegar o maior valor de SEQUENCIA:', error);
     return null;
   }
 }
