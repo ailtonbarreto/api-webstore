@@ -188,7 +188,7 @@ app.post('/inserir', async (req, res) => {
 
   const query = `
     INSERT INTO tembo.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT", "SEQUENCIA", "STATUS")
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, "AGUARDANDO CONFIRMACAO")
     RETURNING *;
   `;
 
