@@ -81,7 +81,7 @@ app.get('/vendas', async (req, res) => {
 async function select_powerbi() {
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT v."PEDIDO", v."SKU_CLIENTE", v."EMISSAO", v."PARENT", p."DESCRICAO_PARENT",p."CATEGORIA",v."QTD",v."VR_UNIT",v."STATUS",c."CLIENTE" FROM tembo.tb_venda AS v LEFT JOIN (SELECT DISTINCT ON ("PARENT") "PARENT", "DESCRICAO_PARENT", "CATEGORIA" FROM tembo.tb_produto ORDER BY "PARENT") AS p ON v."PARENT" = p."PARENT" LEFT JOIN tembo.tb_cliente AS c ON v."SKU_CLIENTE" = c."SKU_CLIENTE";');
+    const result = await client.query('SELECT v."PEDIDO",v."SKU_CLIENTE", v."EMISSAO", v."PARENT", p."DESCRICAO_PARENT", p."CATEGORIA", p."DESCRICAO", v."QTD", v."VR_UNIT", v."STATUS", c."CLIENTE", c."UF" FROM tembo.tb_venda AS v LEFT JOIN (SELECT DISTINCT ON ("PARENT")"PARENT", "DESCRICAO_PARENT","CATEGORIA","DESCRICAO" FROM tembo.tb_produto ORDER BY "PARENT") AS p ON v."PARENT" = p."PARENT" LEFT JOIN tembo.tb_cliente AS c ON v."SKU_CLIENTE" = c."SKU_CLIENTE";');
     const dadosArray = result.rows;
     client.release();
     return dadosArray;
@@ -153,9 +153,7 @@ app.post('/newsletter', async (req, res) => {
   `;
 
   try {
-    // Executa a query de inserção
     const result = await pool.query(insertQuery, [nome, fone, email]);
-    // Retorna o registro inserido
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error("Erro ao inserir dados na tabela newsletter:", error);
@@ -170,7 +168,7 @@ async function getMaxSequencia() {
   try {
     const client = await pool.connect();
     const result = await client.query('SELECT MAX("SEQUENCIA") AS maior_valor FROM tembo.tb_venda');
-    const max_value = result.rows[0].maior_valor || 50000; // Se não houver valor, começa em 50000
+    const max_value = result.rows[0].maior_valor || 50000;
     client.release();
     return max_value;
   } catch (error) {
