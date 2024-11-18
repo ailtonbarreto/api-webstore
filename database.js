@@ -164,65 +164,18 @@ app.post('/newsletter', async (req, res) => {
 // --------------------------------------------------------------------------------------
 // INSERIR PEDIDO
 
-// async function getMaxSequencia() {
-//   try {
-//     const client = await pool.connect();
-//     const result = await client.query('SELECT MAX("SEQUENCIA") AS maior_valor FROM tembo.tb_venda');
-//     const max_value = result.rows[0].maior_valor || 50000;
-//     client.release();
-//     return max_value;
-//   } catch (error) {
-//     console.error('Erro ao pegar o maior valor de SEQUENCIA:', error);
-//     return null;
-//   }
-// }
-
-// app.post('/inserir', async (req, res) => {
-//   console.log('Corpo da requisição:', req.body);
-
-//   if (!Array.isArray(req.body) || req.body.length === 0) {
-//     return res.status(400).json({ message: 'Nenhum dado para inserir' });
-//   }
-
-//   const query = `
-//     INSERT INTO tembo.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT", "SEQUENCIA", "STATUS")
-//     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-//     RETURNING *;
-//   `;
-
-//   const client = await pool.connect();
-
-//   try {
-//     await client.query('BEGIN');
-//     const maxSequencia = await getMaxSequencia();
-//     if (maxSequencia === null) {
-//       throw new Error('Não foi possível obter o valor de SEQUENCIA');
-//     }
-
-//     const novaSequencia = maxSequencia + 1;
-//     const resultados = [];
-
-//     for (const dados of req.body) {
-//       const { pedido, emissao, entrega, sku_cliente, parent, produto, quantidade, valor_unit, situacao } = dados;
-
-//       const valores = [
-//         `PED${novaSequencia}`, emissao, entrega, sku_cliente, produto, parent, quantidade, valor_unit, novaSequencia, situacao
-//       ];
-
-//       const resultado = await client.query(query, valores);
-//       resultados.push(resultado.rows[0]);
-//     }
-
-//     await client.query('COMMIT');
-//     res.status(201).json({ message: 'Inserções bem-sucedidas', data: resultados });
-//   } catch (error) {
-//     await client.query('ROLLBACK');
-//     console.error('Erro ao inserir dados:', error);
-//     res.status(500).json({ message: 'Erro ao inserir dados', error: error.message });
-//   } finally {
-//     client.release();
-//   }
-// });
+async function getMaxSequencia() {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT MAX("SEQUENCIA") AS maior_valor FROM tembo.tb_venda');
+    const max_value = result.rows[0].maior_valor || 50000;
+    client.release();
+    return max_value;
+  } catch (error) {
+    console.error('Erro ao pegar o maior valor de SEQUENCIA:', error);
+    return null;
+  }
+}
 
 app.post('/inserir', async (req, res) => {
   console.log('Corpo da requisição:', req.body);
@@ -246,25 +199,14 @@ app.post('/inserir', async (req, res) => {
       throw new Error('Não foi possível obter o valor de SEQUENCIA');
     }
 
-    let novaSequencia = maxSequencia;
+    const novaSequencia = maxSequencia + 1;
     const resultados = [];
-    let novoPedidoId = `PED${novaSequencia + 1}`; // Gera um novo ID de pedido
 
     for (const dados of req.body) {
       const { pedido, emissao, entrega, sku_cliente, parent, produto, quantidade, valor_unit, situacao } = dados;
 
-      novaSequencia++; // Incrementa a sequência para cada linha
       const valores = [
-        novoPedidoId, // Todos compartilham o mesmo PEDIDO
-        emissao,
-        entrega,
-        sku_cliente,
-        produto,
-        parent,
-        quantidade,
-        valor_unit,
-        novaSequencia,
-        situacao,
+        `PED${novaSequencia}`, emissao, entrega, sku_cliente, produto, parent, quantidade, valor_unit, novaSequencia, situacao
       ];
 
       const resultado = await client.query(query, valores);
@@ -281,6 +223,7 @@ app.post('/inserir', async (req, res) => {
     client.release();
   }
 });
+
 
 
 // ----------------------------------------------------------------------------------------
