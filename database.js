@@ -232,8 +232,8 @@ app.post('/inserir', async (req, res) => {
   }
 
   const query = `
-    INSERT INTO tembo.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT", "STATUS")
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    INSERT INTO tembo.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT", "SEQUENCIA", "STATUS")
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     RETURNING *;
   `;
 
@@ -241,13 +241,30 @@ app.post('/inserir', async (req, res) => {
 
   try {
     await client.query('BEGIN');
+    const maxSequencia = await getMaxSequencia();
+    if (maxSequencia === null) {
+      throw new Error('Não foi possível obter o valor de SEQUENCIA');
+    }
+
+    let novaSequencia = maxSequencia;
     const resultados = [];
+    let novoPedidoId = `PED${novaSequencia + 1}`; // Gera um novo ID de pedido
 
     for (const dados of req.body) {
       const { pedido, emissao, entrega, sku_cliente, parent, produto, quantidade, valor_unit, situacao } = dados;
 
+      novaSequencia++; // Incrementa a sequência para cada linha
       const valores = [
-        pedido, emissao, entrega, sku_cliente, produto, parent, quantidade, valor_unit, situacao
+        novoPedidoId, // Todos compartilham o mesmo PEDIDO
+        emissao,
+        entrega,
+        sku_cliente,
+        produto,
+        parent,
+        quantidade,
+        valor_unit,
+        novaSequencia,
+        situacao,
       ];
 
       const resultado = await client.query(query, valores);
