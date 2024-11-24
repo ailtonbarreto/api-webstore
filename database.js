@@ -26,7 +26,8 @@ const pool = new Pool({
 // --------------------------------------------------------------------------------------
 // PERMISSOES DO SITE
 const corsOptions = {
-  origin: ['http://127.0.0.1:5501','https://ailtonbarreto.github.io/webstore/pedido.html','https://ailtonbarneto.github.io/webstore','http://127.0.0.1:5501/meuspedidos.html'],
+  // origin: ['http://127.0.0.1:5501','https://ailtonbarreto.github.io/webstore/pedido.html','https://ailtonbarneto.github.io/webstore','http://127.0.0.1:5501/meuspedidos.html'],
+  origin: "*",
   methods: 'GET,POST',
 };
 
@@ -119,7 +120,6 @@ async function select_powerbi() {
   }
 }
 
-// Endpoint para o Power BI
 app.get('/powerbi', async (req, res) => {
   try {
     const dadosArray = await select_powerbi();
