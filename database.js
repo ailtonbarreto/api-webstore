@@ -78,22 +78,55 @@ app.get('/vendas', async (req, res) => {
 
 // --------------------------------------------------------------------------------------
 // CONSULTA POWER BI
+
 async function select_powerbi() {
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT v."PEDIDO",v."SKU_CLIENTE", v."EMISSAO", v."PARENT", p."DESCRICAO_PARENT", p."CATEGORIA", p."DESCRICAO", v."QTD", v."VR_UNIT", v."STATUS", c."CLIENTE", c."UF" FROM tembo.tb_venda AS v LEFT JOIN (SELECT DISTINCT ON ("PARENT")"PARENT", "DESCRICAO_PARENT","CATEGORIA","DESCRICAO" FROM tembo.tb_produto ORDER BY "PARENT") AS p ON v."PARENT" = p."PARENT" LEFT JOIN tembo.tb_cliente AS c ON v."SKU_CLIENTE" = c."SKU_CLIENTE";');
+    const query = `
+      SELECT 
+        v."PEDIDO", 
+        v."SKU_CLIENTE", 
+        v."EMISSAO", 
+        v."PARENT", 
+        p."DESCRICAO_PARENT", 
+        p."CATEGORIA", 
+        p."DESCRICAO", 
+        v."QTD", 
+        v."VR_UNIT", 
+        v."STATUS", 
+        c."CLIENTE", 
+        c."UF", 
+        c."CIDADE" 
+      FROM tembo.tb_venda AS v
+      LEFT JOIN (
+        SELECT DISTINCT ON ("PARENT") 
+          "PARENT", 
+          "DESCRICAO_PARENT", 
+          "CATEGORIA", 
+          "DESCRICAO" 
+        FROM tembo.tb_produto 
+        ORDER BY "PARENT"
+      ) AS p ON v."PARENT" = p."PARENT"
+      LEFT JOIN tembo.tb_cliente AS c ON v."SKU_CLIENTE" = c."SKU_CLIENTE";
+    `;
+    const result = await client.query(query);
     const dadosArray = result.rows;
     client.release();
     return dadosArray;
   } catch (error) {
     console.error('Erro ao conectar ou consultar o PostgreSQL:', error);
-    return [];
+    throw error;
   }
 }
 
+// Endpoint para o Power BI
 app.get('/powerbi', async (req, res) => {
-  const dadosArray = await select_powerbi();
-  res.json(dadosArray);
+  try {
+    const dadosArray = await select_powerbi();
+    res.json(dadosArray);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao obter dados do Power BI.' });
+  }
 });
 
 
