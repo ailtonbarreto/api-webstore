@@ -88,6 +88,7 @@ async function select_powerbi() {
                     v."PEDIDO",
                     v."SKU_CLIENTE",
                     v."EMISSAO",
+                    p."SKU",
                     v."PARENT",
                     p."CATEGORIA",
                     p."DESCRICAO",
@@ -95,7 +96,7 @@ async function select_powerbi() {
                     v."VR_UNIT",
                     v."STATUS",
                     c."CLIENTE",
-                  c."CIDADE",
+                    c."CIDADE",
                     c."UF"
                 FROM tembo.tb_venda AS v
                 LEFT JOIN (
