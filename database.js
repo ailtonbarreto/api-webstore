@@ -88,7 +88,6 @@ async function select_powerbi() {
                     v."PEDIDO",
                     v."SKU_CLIENTE",
                     v."EMISSAO",
-                    p."SKU",
                     v."PARENT",
                     p."CATEGORIA",
                     p."DESCRICAO",
