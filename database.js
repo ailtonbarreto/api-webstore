@@ -177,6 +177,7 @@ async function Carregar_Estoque() {
                     cp."CATEGORIA",
                     cp."VR_UNIT",
                     p."ATIVO",
+                    p."VARIACAO",
                     cp."DESCRICAO_PARENT",
                     COALESCE(ec."ESTOQUE_TOTAL", 0) AS "ESTOQUE"
                 FROM 
