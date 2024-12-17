@@ -172,7 +172,6 @@ async function Carregar_Estoque() {
                 SELECT 
                     cp."PARENT",
                     p."SKU",
-                    p."DESCRICAO",
                     cp."IMAGEM",
                     cp."CATEGORIA",
                     cp."VR_UNIT",
