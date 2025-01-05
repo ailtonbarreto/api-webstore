@@ -41,7 +41,7 @@ async function tabela_integracao() {
     const client = await pool.connect();
     const result = await client.query(
       
-      `WITH estoque_calculado AS ( 
+     `WITH estoque_calculado AS ( 
         SELECT 
             e."SKU",
             SUM(CASE 
@@ -56,17 +56,14 @@ async function tabela_integracao() {
     )
     SELECT 
         cp."PARENT",
-      cp."DESCRICAO_PARENT" AS "DESCRICAO",
-      cp."CATEGORIA",
-      cp."VR_UNIT" AS "PRECO_DE",
-      ROUND(p."VR_UNIT" - (p."VR_UNIT" * 0.10), 2) AS "PRECO_POR",
-      p."ATIVO",
-      COALESCE(ec."ESTOQUE_TOTAL", 0) AS "ESTOQUE_VENDA",
-      pi."HOME",
-        cp."IMAGEM",
-      p."SKU",
-        p."VARIACAO"
-       
+        cp."DESCRICAO_PARENT" AS "DESCRICAO",
+        cp."CATEGORIA",
+        cp."VR_UNIT" AS "PRECO_DE",
+        ROUND(cp."VR_UNIT" - (cp."VR_UNIT" * 0.10), 2) AS "PRECO_POR",
+        p."ATIVO",
+        SUM(COALESCE(ec."ESTOQUE_TOTAL", 0)) AS "ESTOQUE_VENDA",
+        pi."HOME",
+        cp."IMAGEM"
     FROM 
         tembo.tb_produto AS p
     JOIN 
@@ -77,7 +74,16 @@ async function tabela_integracao() {
         ON p."PARENT" = pi."PARENT"
     LEFT JOIN 
         estoque_calculado AS ec
-        ON p."SKU" = ec."SKU";`
+        ON p."SKU" = ec."SKU"
+    GROUP BY 
+        cp."PARENT", 
+        cp."DESCRICAO_PARENT", 
+        cp."CATEGORIA", 
+        cp."VR_UNIT", 
+        p."ATIVO", 
+        pi."HOME", 
+        cp."IMAGEM";`
+    
       
       );
     const dadosArray = result.rows;
