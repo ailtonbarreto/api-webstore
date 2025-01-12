@@ -84,7 +84,6 @@ async function tabela_integracao() {
         pi."HOME", 
         cp."IMAGEM";`
     
-      
       );
     const dadosArray = result.rows;
     client.release();
