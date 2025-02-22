@@ -26,7 +26,7 @@ const pool = new Pool({
 // --------------------------------------------------------------------------------------
 // PERMISSOES DO SITE
 const corsOptions = {
-  // origin: ['http://127.0.0.1:5501','https://ailtonbarreto.github.io/webstore/pedido.html','https://ailtonbarneto.github.io/webstore','http://127.0.0.1:5501/meuspedidos.html'],
+  // origin: ['http://127.0.0.1:5501'],
   origin: "*",
   methods: 'GET,POST',
 };
@@ -361,6 +361,6 @@ app.post('/inserir', async (req, res) => {
 
 // ----------------------------------------------------------------------------------------
 // RODANDO NO SERVIDOR - node database.js
-app.listen(3000, () => {
-  console.log('Servidor rodando em http://localhost:3000');
+app.listen(3001, () => {
+  console.log('Servidor rodando em http://localhost:3001');
 });
