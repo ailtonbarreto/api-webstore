@@ -102,25 +102,35 @@ app.get('/integracao', async (req, res) => {
 // --------------------------------------------------------------------------------------
 // TABELA DE VENDAS
 
-async function listar_vendas() {
+app.get('/vendas/:sku_cliente', async (req, res) => {
+  const { sku_cliente } = req.params;
+
+  if (!sku_cliente) {
+    return res.status(400).json({ error: "SKU do cliente é obrigatório" });
+  }
+
   try {
     const client = await pool.connect();
-    const result = await client.query('select * from tembo.tb_venda');
+    const query = `
+      SELECT * FROM tembo.tb_venda
+      WHERE "SKU_CLIENTE" = $1
+      ORDER BY "EMISSAO" DESC;
+    `;
+    const result = await client.query(query, [sku_cliente]);
 
-    const dadosArray = result.rows;
     client.release();
-    return dadosArray;
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Nenhum pedido encontrado para este cliente" });
+    }
+
+    res.json(result.rows);
   } catch (error) {
-    console.error('Erro ao conectar ou consultar o PostgreSQL:', error);
-    return [];
+    console.error("Erro ao buscar pedidos do cliente:", error);
+    res.status(500).json({ error: "Erro interno do servidor" });
   }
-}
-
-app.get('/vendas', async (req, res) => {
-  const dadosArray = await listar_vendas();
-  res.json(dadosArray);
-
 });
+
 
 // --------------------------------------------------------------------------------------
 // CONSULTA POWER BI
