@@ -374,9 +374,9 @@ app.get('/pedido/:pedidoId', async (req, res) => {
   const { pedidoId } = req.params;
   try {
     const query = `
-      SELECT PEDIDO, EMISSAO, ENTREGA, QTD, VR_UNIT, STATUS
+      SELECT "PEDIDO", "EMISSAO", "ENTREGA", "QTD", "VR_UNIT", "STATUS"
       FROM tembo.tb_venda
-      WHERE PEDIDO = $1;
+      WHERE "PEDIDO" = $1;
     `;
     const result = await pool.query(query, [pedidoId]);
 
