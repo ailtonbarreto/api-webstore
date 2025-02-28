@@ -370,30 +370,27 @@ app.post('/inserir', async (req, res) => {
 // --------------------------------------------------------------------------------------
 // CAPTURAR DETALHES DO PEDIDO
 
-router.get("/pedido/:pedidoId", async (req, res) => {
+app.get('/pedido/:pedidoId', async (req, res) => {
   const { pedidoId } = req.params;
-
   try {
-      const query = `
-          SELECT PEDIDO, EMISSAO, ENTREGA, QTD, VR_UNIT, STATUS,
-          FROM tembo.tb_venda
-          WHERE PEDIDO = ?
-      `;
+    const query = `
+      SELECT PEDIDO, EMISSAO, ENTREGA, QTD, VR_UNIT, STATUS
+      FROM tembo.tb_venda
+      WHERE PEDIDO = $1;
+    `;
+    const result = await pool.query(query, [pedidoId]);
 
-      const [result] = await db.execute(query, [pedidoId]);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Pedido não encontrado" });
+    }
 
-      if (result.length === 0) {
-          return res.status(404).json({ erro: "Pedido não encontrado" });
-      }
-
-      res.json(result[0]);
+    res.json(result.rows[0]);
   } catch (error) {
-      console.error("Erro ao buscar o pedido:", error);
-      res.status(500).json({ erro: "Erro no servidor" });
+    console.error("Erro ao buscar o pedido:", error);
+    res.status(500).json({ error: "Erro no servidor" });
   }
 });
 
-module.exports = router;
 
 // ----------------------------------------------------------------------------------------
 // RODANDO NO SERVIDOR - node database.js
