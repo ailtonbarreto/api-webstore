@@ -367,10 +367,37 @@ app.post('/inserir', async (req, res) => {
   }
 });
 
+// --------------------------------------------------------------------------------------
+// CAPTURAR DETALHES DO PEDIDO
 
+router.get("/pedido/:pedidoId", async (req, res) => {
+  const { pedidoId } = req.params;
+
+  try {
+      const query = `
+          SELECT PEDIDO, EMISSAO, ENTREGA, QTD, VR_UNIT, STATUS,
+          FROM tembo.tb_venda
+          WHERE PEDIDO = ?
+      `;
+
+      const [result] = await db.execute(query, [pedidoId]);
+
+      if (result.length === 0) {
+          return res.status(404).json({ erro: "Pedido não encontrado" });
+      }
+
+      res.json(result[0]);
+  } catch (error) {
+      console.error("Erro ao buscar o pedido:", error);
+      res.status(500).json({ erro: "Erro no servidor" });
+  }
+});
+
+module.exports = router;
 
 // ----------------------------------------------------------------------------------------
 // RODANDO NO SERVIDOR - node database.js
+
 app.listen(3001, () => {
   console.log('Servidor rodando em http://localhost:3001');
 });
