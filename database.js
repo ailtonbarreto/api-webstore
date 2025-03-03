@@ -112,9 +112,20 @@ app.get('/vendas/:sku_cliente', async (req, res) => {
   try {
     const client = await pool.connect();
     const query = `
-      SELECT * FROM tembo.tb_venda
-      WHERE "SKU_CLIENTE" = $1
-      ORDER BY "EMISSAO" DESC;
+
+    SELECT 
+      "PEDIDO", 
+      "EMISSAO", 
+      "ENTREGA", 
+      SUM("QTD" * "VR_UNIT") AS "TOTAL_PEDIDO",
+      "STATUS"
+    FROM tembo.tb_venda
+    WHERE "SKU_CLIENTE" = $1
+    GROUP BY "PEDIDO", "EMISSAO", "ENTREGA", "STATUS"
+    ORDER BY "EMISSAO";
+
+
+
     `;
     const result = await client.query(query, [sku_cliente]);
 
