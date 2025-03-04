@@ -385,18 +385,22 @@ app.get('/pedido/:pedidoId', async (req, res) => {
   try {
     const query = `
     
-      SELECT 
-        v."PEDIDO", 
-        v."EMISSAO", 
-        v."ENTREGA", 
-        v."SKU",
-        v."QTD",
-        v."VR_UNIT",
-        (v."QTD" * v."VR_UNIT") AS "TOTAL_ITEM",
-        v."STATUS"
-      FROM tembo.tb_venda v
-      WHERE v."PEDIDO" = $1
-      ORDER BY v."EMISSAO";
+  SELECT  
+      v."PEDIDO",
+      v."EMISSAO",
+      p."DESCRICAO",
+      v."QTD",
+      v."VR_UNIT",
+      v."STATUS"
+    FROM 
+        tembo.tb_venda AS v
+    LEFT JOIN (
+        SELECT DISTINCT ON ("PARENT") "PARENT", "DESCRICAO"
+        FROM tembo.tb_produto
+        ORDER BY "PARENT"
+    ) AS p ON v."PARENT" = p."PARENT"
+    WHERE v."PEDIDO" = $1;
+
 
     `;
     const result = await pool.query(query, [pedidoId]);
