@@ -402,13 +402,13 @@ app.get('/pedido/:pedidoId', async (req, res) => {
     `;
     const result = await pool.query(query, [pedidoId]);
 
-    console.log(result);  // Verifique o que está sendo retornado no console
+    console.log(result);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Pedido não encontrado" });
     }
 
-    res.json(result.rows);  // Retorna todos os itens do pedido
+    res.json(result.rows);
   } catch (error) {
     console.error("Erro ao buscar o pedido:", error);
     res.status(500).json({ error: "Erro no servidor" });
