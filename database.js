@@ -125,7 +125,6 @@ app.get('/vendas/:sku_cliente', async (req, res) => {
     ORDER BY "EMISSAO";
 
 
-
     `;
     const result = await client.query(query, [sku_cliente]);
 
@@ -385,13 +384,20 @@ app.get('/pedido/:pedidoId', async (req, res) => {
   const { pedidoId } = req.params;
   try {
     const query = `
-    SELECT 
-      "PEDIDO", 
-      "EMISSAO", 
-      "ENTREGA", 
-      "STATUS"
-    FROM tembo.tb_venda
-    WHERE "PEDIDO" = $1
+    
+      SELECT 
+        v."PEDIDO", 
+        v."EMISSAO", 
+        v."ENTREGA", 
+        v."SKU",
+        v."QTD",
+        v."VR_UNIT",
+        (v."QTD" * v."VR_UNIT") AS "TOTAL_ITEM",
+        v."STATUS"
+      FROM tembo.tb_venda v
+      WHERE v."PEDIDO" = $1
+      ORDER BY v."EMISSAO";
+
     `;
     const result = await pool.query(query, [pedidoId]);
 
