@@ -384,14 +384,13 @@ app.get('/pedido/:pedidoId', async (req, res) => {
   const { pedidoId } = req.params;
   try {
     const query = `
-    
-  SELECT  
-      v."PEDIDO",
-      v."EMISSAO",
-      p."DESCRICAO",
-      v."QTD",
-      v."VR_UNIT",
-      v."STATUS"
+    SELECT  
+        v."PEDIDO",
+        v."EMISSAO",
+        p."DESCRICAO",
+        v."QTD",
+        v."VR_UNIT",
+        v."STATUS"
     FROM 
         tembo.tb_venda AS v
     LEFT JOIN (
@@ -400,16 +399,16 @@ app.get('/pedido/:pedidoId', async (req, res) => {
         ORDER BY "PARENT"
     ) AS p ON v."PARENT" = p."PARENT"
     WHERE v."PEDIDO" = $1;
-
-
     `;
     const result = await pool.query(query, [pedidoId]);
+
+    console.log(result);  // Verifique o que está sendo retornado no console
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Pedido não encontrado" });
     }
 
-    res.json(result.rows[0]);
+    res.json(result.rows);  // Retorna todos os itens do pedido
   } catch (error) {
     console.error("Erro ao buscar o pedido:", error);
     res.status(500).json({ error: "Erro no servidor" });
