@@ -172,7 +172,7 @@ async function select_powerbi() {
             ORDER BY "PARENT"
         ) AS p ON v."PARENT" = p."PARENT"
         LEFT JOIN tembo.tb_cliente AS c ON v."SKU_CLIENTE" = c."SKU_CLIENTE"
-        WHERE v."EMISSAO" >= '2023-01-01';
+        WHERE v."EMISSAO" >= '2024-01-01';
 
 
     `;
