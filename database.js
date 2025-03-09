@@ -148,29 +148,32 @@ async function select_powerbi() {
   try {
     const client = await pool.connect();
     const query = `
-                SELECT
-                    v."PEDIDO",
-                    v."SKU_CLIENTE",
-                    v."EMISSAO",
-                    v."PARENT",
-                    p."CATEGORIA",
-                    p."DESCRICAO",
-                    v."QTD",
-                    v."VR_UNIT",
-                    v."STATUS",
-                    c."CLIENTE",
-                    c."CIDADE",
-                    c."UF"
-                FROM tembo.tb_venda AS v
-                LEFT JOIN (
-                    SELECT DISTINCT ON ("PARENT") 
-                        "PARENT", 
-                        "DESCRICAO", 
-                        "CATEGORIA"
-                    FROM tembo.tb_produto
-                    ORDER BY "PARENT"
-                ) AS p ON v."PARENT" = p."PARENT"
-                LEFT JOIN tembo.tb_cliente AS c ON v."SKU_CLIENTE" = c."SKU_CLIENTE";
+
+            SELECT
+            v."PEDIDO",
+            v."SKU_CLIENTE",
+            v."EMISSAO",
+            v."PARENT",
+            p."CATEGORIA",
+            p."DESCRICAO",
+            v."QTD",
+            v."VR_UNIT",
+            v."STATUS",
+            c."CLIENTE",
+            c."CIDADE",
+            c."UF"
+        FROM tembo.tb_venda AS v
+        LEFT JOIN (
+            SELECT DISTINCT ON ("PARENT") 
+                "PARENT",
+                "DESCRICAO",
+                "CATEGORIA"
+            FROM tembo.tb_produto
+            ORDER BY "PARENT"
+        ) AS p ON v."PARENT" = p."PARENT"
+        LEFT JOIN tembo.tb_cliente AS c ON v."SKU_CLIENTE" = c."SKU_CLIENTE"
+        WHERE v."EMISSAO" >= '2023-01-01';
+
 
     `;
     const result = await client.query(query);
