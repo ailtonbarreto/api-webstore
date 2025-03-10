@@ -153,7 +153,7 @@ async function select_powerbi() {
       v."PEDIDO",
       v."SKU_CLIENTE",
       v."EMISSAO",
-      TO_CHAR(v."EMISSAO", 'MM') AS mes,  -- Obtém o mês no formato "01", "02", etc.
+      TO_CHAR(v."EMISSAO", 'MM') AS MES,
       v."PARENT",
       p."CATEGORIA",
       p."DESCRICAO",
