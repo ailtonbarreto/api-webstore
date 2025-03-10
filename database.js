@@ -153,6 +153,7 @@ async function select_powerbi() {
       v."PEDIDO",
       v."SKU_CLIENTE",
       v."EMISSAO",
+      TO_CHAR(v."EMISSAO", 'DD') AS DIA,
       TO_CHAR(v."EMISSAO", 'MM') AS MES,
       TO_CHAR(v."EMISSAO", 'YYYY') AS ANO,
       v."PARENT",
