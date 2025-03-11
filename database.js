@@ -161,7 +161,7 @@ async function select_powerbi() {
       v."QTD",
       v."VR_UNIT",
       v."STATUS",
-      c."CLIENTE",
+      c."CLIENTE"
       FROM tembo.tb_venda AS v
       LEFT JOIN (
           SELECT DISTINCT ON ("PARENT") 
