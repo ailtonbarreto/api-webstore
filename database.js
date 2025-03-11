@@ -162,8 +162,6 @@ async function select_powerbi() {
       v."VR_UNIT",
       v."STATUS",
       c."CLIENTE",
-      c."CIDADE",
-      c."UF"
       FROM tembo.tb_venda AS v
       LEFT JOIN (
           SELECT DISTINCT ON ("PARENT") 
