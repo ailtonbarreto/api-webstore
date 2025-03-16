@@ -417,6 +417,58 @@ app.get('/pedido/:pedidoId', async (req, res) => {
   }
 });
 
+// --------------------------------------------------------------------------------------
+// CAPTURAR DETALHES DO PEDIDO POR REPRESENTANTE
+
+app.get('/array/:name', async (req, res) => {
+  const { name } = req.params;
+
+  try {
+    const query = `
+      SELECT
+        v."PEDIDO",
+        v."SKU_CLIENTE",
+        TO_CHAR(v."EMISSAO", 'DD') AS DIA,
+        TO_CHAR(v."EMISSAO", 'MM') AS MES,
+        TO_CHAR(v."EMISSAO", 'YYYY') AS ANO,
+        v."PARENT",
+        p."CATEGORIA",
+        p."DESCRICAO",
+        v."QTD",
+        v."VR_UNIT",
+        v."STATUS",
+        c."CLIENTE",
+        c."REP"
+      FROM tembo.tb_venda AS v
+      LEFT JOIN (
+          SELECT DISTINCT ON ("PARENT") 
+              "PARENT",
+              "DESCRICAO",
+              "CATEGORIA"
+          FROM tembo.tb_produto
+          ORDER BY "PARENT"
+      ) AS p ON v."PARENT" = p."PARENT"
+      LEFT JOIN tembo.tb_cliente AS c ON v."SKU_CLIENTE" = c."SKU_CLIENTE"
+      WHERE v."EMISSAO" >= '2024-01-01'
+      and c."REP" = $1;
+	
+    `;
+
+    const result = await pool.query(query, [name]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Nenhum pedido encontrado para esse representante" });
+    }
+
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Erro ao buscar os pedidos:", error);
+    res.status(500).json({ error: "Erro no servidor" });
+  }
+});
+
+
+
 
 // ----------------------------------------------------------------------------------------
 // RODANDO NO SERVIDOR - node database.js
