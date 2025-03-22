@@ -225,7 +225,11 @@ app.get('/produtos', async (req, res) => {
 async function Carregar_Estoque() {
   try {
     const client = await pool.connect();
-    const result = await client.query(`WITH estoque_calculado AS (
+    const result = await client.query(
+      
+      `
+      
+      WITH estoque_calculado AS (
                     SELECT 
                         e."SKU",
                         SUM(CASE 
@@ -257,7 +261,9 @@ async function Carregar_Estoque() {
                 LEFT JOIN 
                     estoque_calculado AS ec
                 ON 
-                    p."SKU" = ec."SKU"`);
+                    p."SKU" = ec."SKU"
+                    `
+            );
     const dadosArray = result.rows;
     client.release();
     return dadosArray;
@@ -430,6 +436,8 @@ app.get('/array/:name', async (req, res) => {
       SELECT
         v."PEDIDO",
         v."SKU_CLIENTE",
+        v."EMISSAO",
+        v."ENTREGA",
         TO_CHAR(v."EMISSAO", 'DD') AS DIA,
         TO_CHAR(v."EMISSAO", 'MM') AS MES,
         TO_CHAR(v."EMISSAO", 'YYYY') AS ANO,
