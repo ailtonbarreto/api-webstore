@@ -390,6 +390,20 @@ app.post('/inserir', async (req, res) => {
 // --------------------------------------------------------------------------------------
 // INSERIR CLIENTE
 
+async function getMaxCliente() {
+  try {
+    const client = await pool.connect();
+    const result = await client.query('SELECT MAX("SEQUENCIA") AS maior_valor FROM tembo.tb_cliente');
+    const max_value = result.rows[0].maior_valor ||
+    client.release();
+    return max_value;
+  } catch (error) {
+    console.error('Erro ao pegar o maior valor de SEQUENCIA:', error);
+    return null;
+  }
+}
+
+
 app.post('/inserir_cliente', async (req, res) => {
   console.log('Corpo da requisição:', req.body);
 
