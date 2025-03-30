@@ -390,63 +390,29 @@ app.post('/inserir', async (req, res) => {
 // --------------------------------------------------------------------------------------
 // INSERIR CLIENTE
 
-async function getMaxCliente() {
-  try {
-    const client = await pool.connect();
-    const result = await client.query('SELECT MAX("SEQUENCIA") AS maior_valor FROM tembo.tb_cliente');
-    const max_value = result.rows[0].maior_valor ||
-    client.release();
-    return max_value;
-  } catch (error) {
-    console.error('Erro ao pegar o maior valor de SEQUENCIA:', error);
-    return null;
-  }
-}
-
-
 app.post('/inserir_cliente', async (req, res) => {
   console.log('Corpo da requisição:', req.body);
 
-  const { razao_social, cnpj, cidade, uf, senha } = req.body;
-  if (!razao_social || !cnpj || !cidade || !uf || !senha) {
-    console.error('Erro: Campos obrigatórios ausentes');
-    return res.status(400).json({ message: 'Todos os campos são obrigatórios!' });
-  }
-
-  const client = await pool.connect();
-  console.log('Conexão com o banco estabelecida');
-
   try {
-    await client.query('BEGIN');
+    const { razao_social, cidade, uf, user, senha } = req.body;
 
-    const maxSequencia = await getMaxCliente();
-    console.log('Máximo SEQUENCIA:', maxSequencia);
-
-    if (maxSequencia === null) throw new Error('Erro ao obter SEQUENCIA');
-
-    const novaSequencia = maxSequencia + 1;
-    const status = 'ATIVO';
-
+    // A inserção agora não passa mais o SKU_CLIENTE, pois ele será gerado automaticamente pela sequência.
     const query = `
-      INSERT INTO tembo.tb_cliente ("SEQUENCIA", "CLIENTE", "CNPJ", "CIDADE", "UF", "PASSWORD", "STATUS")
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO tembo.tb_cliente ("CLIENTE", "CIDADE", "UF", "USER", "PASSWORD", "STATUS")
+      VALUES ($1, $2, $3, $4, $5, 0)
       RETURNING *;
     `;
 
-    const valores = [novaSequencia, razao_social, cnpj, cidade, uf, senha, status];
-    console.log('Executando query:', query, valores);
+    const valores = [razao_social, cidade, uf, user, senha];
 
+    const client = await pool.connect();
     const resultado = await client.query(query, valores);
-    console.log('Resultado da query:', resultado.rows[0]);
+    client.release();
 
-    await client.query('COMMIT');
     res.status(201).json({ message: 'Cliente cadastrado com sucesso!', data: resultado.rows[0] });
   } catch (error) {
-    await client.query('ROLLBACK');
     console.error('Erro ao inserir cliente:', error);
     res.status(500).json({ message: 'Erro ao cadastrar cliente', error: error.message });
-  } finally {
-    client.release();
   }
 });
 
