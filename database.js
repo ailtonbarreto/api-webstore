@@ -513,6 +513,8 @@ app.get('/array/:name', async (req, res) => {
 // ----------------------------------------------------------------------------------------
 // RODANDO NO SERVIDOR - node database.js
 
-app.listen(3000, () => {
-  console.log('Servidor rodando em http://localhost:3000');
+const porta = 3003
+
+app.listen(porta, () => {
+  console.log(`Servidor rodando em http://localhost:${porta}}`);
 });
