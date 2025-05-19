@@ -29,7 +29,6 @@ const pool = new Pool({
 // --------------------------------------------------------------------------------------
 // PERMISSOES DO SITE
 const corsOptions = {
-  // origin: ['https://ailtonbarreto.github.io'],
   origin: "*",
   methods: 'GET,POST',
 };
