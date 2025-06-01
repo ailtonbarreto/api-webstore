@@ -42,52 +42,48 @@ async function tabela_integracao() {
   try {
     const client = await pool.connect();
     const result = await client.query(
-      
-     `
-      
-    WITH estoque_calculado AS ( 
-      SELECT 
-          e."SKU",
-          SUM(CASE 
-                  WHEN e."TIPO" = 'E' THEN e."QTD"
-                  WHEN e."TIPO" = 'S' THEN -e."QTD"
-                  ELSE 0
-              END) AS "ESTOQUE_TOTAL"
-      FROM 
-          public.tb_mov_estoque AS e
-      GROUP BY 
-          e."SKU"
-      )
-    SELECT 
-        cp."PARENT",
-        cp."DESCRICAO_PARENT" AS "DESCRICAO",
-        cp."CATEGORIA",
-        cp."VR_UNIT" AS "PRECO_DE",
-        ROUND(cp."VR_UNIT" - (cp."VR_UNIT" * 0.10), 2) AS "PRECO_POR",
-        p."ATIVO",
-        SUM(COALESCE(ec."ESTOQUE_TOTAL", 0)) AS "ESTOQUE_VENDA",
-        cp."HOME",
-        cp."IMAGEM"
-    FROM 
-        public.tb_produto AS p
-    JOIN 
-        public.tb_produto_parent AS cp
-        ON p."PARENT" = cp."PARENT"
-    LEFT JOIN 
-        estoque_calculado AS ec
-        ON p."SKU" = ec."SKU"
-    GROUP BY 
-        cp."PARENT", 
-        cp."DESCRICAO_PARENT", 
-        cp."CATEGORIA", 
-        cp."VR_UNIT", 
-        p."ATIVO", 
-        cp."HOME",
-        cp."IMAGEM";
+
+      `
     
-     `
-    
-      );
+        with estoque_calculado as (
+      select
+        e."SKU",
+        SUM(case 
+              when e."TIPO" = 'E' then e."QTD"
+              when e."TIPO" = 'S' then -e."QTD"
+              else 0
+            end) as "ESTOQUE_TOTAL"
+      from
+        public.tb_mov_estoque as e
+      group by
+        e."SKU"
+    )
+    select
+      cp."PARENT",
+      cp."DESCRICAO_PARENT" as "DESCRICAO",
+      cp."CATEGORIA",
+      cp."VR_UNIT" as "PRECO_DE",
+    ROUND((cp."VR_UNIT" - (cp."VR_UNIT" * 0.10))::numeric, 2) AS "PRECO_POR",
+      p."ATIVO",
+      SUM(coalesce(ec."ESTOQUE_TOTAL", 0)) as "ESTOQUE_VENDA",
+      cp."HOME",
+      cp."IMAGEM"
+    from
+      public.tb_produto as p
+      join public.tb_produto_parent as cp on p."PARENT" = cp."PARENT"
+      left join estoque_calculado as ec on p."SKU" = ec."SKU"
+    group by
+      cp."PARENT",
+      cp."DESCRICAO_PARENT",
+      cp."CATEGORIA",
+      cp."VR_UNIT",
+      p."ATIVO",
+      cp."HOME",
+      cp."IMAGEM";
+      
+  `)
+
+  
     const dadosArray = result.rows;
     client.release();
     return dadosArray;
@@ -228,7 +224,7 @@ async function Carregar_Estoque() {
   try {
     const client = await pool.connect();
     const result = await client.query(
-      
+
       `
       
       WITH estoque_calculado AS (
@@ -265,7 +261,7 @@ async function Carregar_Estoque() {
                 ON 
                     p."SKU" = ec."SKU"
                     `
-            );
+    );
     const dadosArray = result.rows;
     client.release();
     return dadosArray;
