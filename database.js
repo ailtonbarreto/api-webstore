@@ -54,7 +54,7 @@ async function tabela_integracao() {
                   ELSE 0
               END) AS "ESTOQUE_TOTAL"
       FROM 
-          tembo.tb_mov_estoque AS e
+          public.tb_mov_estoque AS e
       GROUP BY 
           e."SKU"
       )
@@ -69,9 +69,9 @@ async function tabela_integracao() {
         cp."HOME",
         cp."IMAGEM"
     FROM 
-        tembo.tb_produto AS p
+        public.tb_produto AS p
     JOIN 
-        tembo.tb_produto_parent AS cp
+        public.tb_produto_parent AS cp
         ON p."PARENT" = cp."PARENT"
     LEFT JOIN 
         estoque_calculado AS ec
@@ -122,7 +122,7 @@ app.get('/vendas/:sku_cliente', async (req, res) => {
       "ENTREGA", 
       SUM("QTD" * "VR_UNIT") AS "TOTAL_PEDIDO",
       "STATUS"
-    FROM tembo.tb_venda
+    FROM public.tb_venda
     WHERE "SKU_CLIENTE" = $1
     GROUP BY "PEDIDO", "EMISSAO", "ENTREGA", "STATUS"
     ORDER BY "EMISSAO";
@@ -167,16 +167,16 @@ async function select_powerbi() {
       v."STATUS",
       c."CLIENTE",
       c."REP"
-      FROM tembo.tb_venda AS v
+      FROM public.tb_venda AS v
       LEFT JOIN (
           SELECT DISTINCT ON ("PARENT") 
               "PARENT",
               "DESCRICAO",
               "CATEGORIA"
-          FROM tembo.tb_produto
+          FROM public.tb_produto
           ORDER BY "PARENT"
       ) AS p ON v."PARENT" = p."PARENT"
-      LEFT JOIN tembo.tb_cliente AS c ON v."SKU_CLIENTE" = c."SKU_CLIENTE"
+      LEFT JOIN public.tb_cliente AS c ON v."SKU_CLIENTE" = c."SKU_CLIENTE"
       WHERE v."EMISSAO" >= '2024-01-01';
 
     `;
@@ -206,7 +206,7 @@ app.get('/powerbi', async (req, res) => {
 async function tabela_produtos() {
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT * FROM tembo.tb_produto');
+    const result = await client.query('SELECT * FROM public.tb_produto');
     const dadosArray = result.rows;
     client.release();
     return dadosArray;
@@ -240,7 +240,7 @@ async function Carregar_Estoque() {
                                 ELSE 0
                             END) AS "ESTOQUE_TOTAL"
                     FROM 
-                        tembo.tb_mov_estoque AS e
+                        public.tb_mov_estoque AS e
                     GROUP BY 
                         e."SKU"
                 )
@@ -255,9 +255,9 @@ async function Carregar_Estoque() {
                     cp."DESCRICAO_PARENT",
                     COALESCE(ec."ESTOQUE_TOTAL", 0) AS "ESTOQUE"
                 FROM 
-                    tembo.tb_produto AS p
+                    public.tb_produto AS p
                 JOIN 
-                    tembo.tb_produto_parent AS cp
+                    public.tb_produto_parent AS cp
                 ON 
                     p."PARENT" = cp."PARENT"
                 LEFT JOIN 
@@ -289,7 +289,7 @@ app.get('/estoque', async (req, res) => {
 async function tabela_clientes() {
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT * FROM tembo.tb_cliente');
+    const result = await client.query('SELECT * FROM public.tb_cliente');
     const dadosArray = result.rows;
     client.release();
     return dadosArray;
@@ -312,7 +312,7 @@ app.post('/newsletter', async (req, res) => {
   const { nome, fone, email } = req.body;
 
   const insertQuery = `
-    INSERT INTO tembo.tb_newsletter ("NOME", "FONE", "EMAIL")
+    INSERT INTO public.tb_newsletter ("NOME", "FONE", "EMAIL")
     VALUES ($1, $2, $3)
     RETURNING *;
   `;
@@ -332,7 +332,7 @@ app.post('/newsletter', async (req, res) => {
 async function getMaxSequencia() {
   try {
     const client = await pool.connect();
-    const result = await client.query('SELECT MAX("SEQUENCIA") AS maior_valor FROM tembo.tb_venda');
+    const result = await client.query('SELECT MAX("SEQUENCIA") AS maior_valor FROM public.tb_venda');
     const max_value = result.rows[0].maior_valor || 50000;
     client.release();
     return max_value;
@@ -350,7 +350,7 @@ app.post('/inserir', async (req, res) => {
   }
 
   const query = `
-    INSERT INTO tembo.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT", "SEQUENCIA", "STATUS")
+    INSERT INTO public.tb_venda ("PEDIDO", "EMISSAO", "ENTREGA", "SKU_CLIENTE", "SKU", "PARENT", "QTD", "VR_UNIT", "SEQUENCIA", "STATUS")
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
     RETURNING *;
   `;
@@ -400,7 +400,7 @@ app.post('/inserir_cliente', async (req, res) => {
 
     // A inserção agora não passa mais o SKU_CLIENTE, pois ele será gerado automaticamente pela sequência.
     const query = `
-      INSERT INTO tembo.tb_cliente ("CLIENTE", "CIDADE", "UF", "USER", "PASSWORD", "STATUS")
+      INSERT INTO public.tb_cliente ("CLIENTE", "CIDADE", "UF", "USER", "PASSWORD", "STATUS")
       VALUES ($1, $2, $3, $4, $5, 0)
       RETURNING *;
     `;
@@ -434,10 +434,10 @@ app.get('/pedido/:pedidoId', async (req, res) => {
         v."VR_UNIT",
         v."STATUS"
     FROM 
-        tembo.tb_venda AS v
+        public.tb_venda AS v
     LEFT JOIN (
         SELECT DISTINCT ON ("PARENT") "PARENT", "DESCRICAO"
-        FROM tembo.tb_produto
+        FROM public.tb_produto
         ORDER BY "PARENT"
     ) AS p ON v."PARENT" = p."PARENT"
     WHERE v."PEDIDO" = $1;
@@ -481,16 +481,16 @@ app.get('/array/:name', async (req, res) => {
         v."STATUS",
         c."CLIENTE",
         c."REP"
-      FROM tembo.tb_venda AS v
+      FROM public.tb_venda AS v
       LEFT JOIN (
           SELECT DISTINCT ON ("PARENT") 
               "PARENT",
               "DESCRICAO",
               "CATEGORIA"
-          FROM tembo.tb_produto
+          FROM public.tb_produto
           ORDER BY "PARENT"
       ) AS p ON v."PARENT" = p."PARENT"
-      LEFT JOIN tembo.tb_cliente AS c ON v."SKU_CLIENTE" = c."SKU_CLIENTE"
+      LEFT JOIN public.tb_cliente AS c ON v."SKU_CLIENTE" = c."SKU_CLIENTE"
       WHERE v."EMISSAO" >= '2024-01-01'
       and c."REP" = $1;
 	
