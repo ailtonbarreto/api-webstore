@@ -15,10 +15,10 @@ app.use(express.json());
 // --------------------------------------------------------------------------------------
 // CRENDENCIAL
 const pool = new Pool({
-  user: 'postgres',
-  host: 'gluttonously-bountiful-sloth.data-1.use1.tembo.io',
-  database: 'postgres',
-  password: 'MeSaIkkB57YSOgLO',
+  user: 'webstore_b2b_owner',
+  host: 'ep-long-salad-aczix9aa-pooler.sa-east-1.aws.neon.tech',
+  database: 'webstore_b2b',
+  password: 'npg_iYEzyaTLg4f8',
   port: 5432,
   ssl: {
     rejectUnauthorized: false,
