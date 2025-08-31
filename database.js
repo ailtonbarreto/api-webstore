@@ -308,7 +308,7 @@ app.post('/newsletter', async (req, res) => {
   const { nome, fone, email } = req.body;
 
   const insertQuery = `
-    INSERT INTO public.tb_newsletter ("NOME", "FONE", "EMAIL")
+    INSERT INTO public.tb_newsletter ("nome", "fone", "email")
     VALUES ($1, $2, $3)
     RETURNING *;
   `;
